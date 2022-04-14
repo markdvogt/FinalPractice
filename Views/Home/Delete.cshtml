@@ -1,0 +1,14 @@
+﻿@{
+    ViewData["Title"] = "Form";
+}
+
+@model FinalPractice.Models.FormResponse
+
+<h2>Are you sure you want to delete the record for @Model.Title?</h2>
+
+<form method="post" asp-controller="Home" asp-action="Delete">
+    <button type="submit" class="btn btn-secondary">Delete</button>
+    <a asp-controller="Home" asp-action="DataTable" class="btn btn-primary">Cancel</a>
+
+    <input type="hidden" asp-for="FormId" /> 
+</form>

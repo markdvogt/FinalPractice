@@ -11,16 +11,25 @@ namespace FinalPractice.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private ApplicationContext context { get; set; }
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ApplicationContext temp)
         {
-            _logger = logger;
+            context = temp;
         }
+
+        //private IFinalPracticeRepository repo;
+
+        //public HomeController(IFinalPracticeRepository temp)
+        //{
+        //    repo = temp;
+        //}
 
         public IActionResult Index()
         {
-            return View();
+            var blah = context.MyTable.ToList();
+
+            return View(blah);
         }
 
         [HttpGet]
@@ -29,21 +38,57 @@ namespace FinalPractice.Controllers
             return View();
         }
 
+        [HttpPost]
+        public IActionResult Form(FormResponse fr)
+        {
+            context.Add(fr);
+            context.SaveChanges();
+
+            return View("AddConfirmation", fr);
+        }
+
         [HttpGet]
         public IActionResult DataTable()
         {
-            return View();
+            var MyTable = context.MyTable
+                .OrderBy(x => x.Title)
+                .ToList();
+
+            return View(MyTable);
         }
 
-        public IActionResult Privacy()
+        [HttpGet]
+        public IActionResult Edit(int formid)
         {
-            return View();
+            var response_to_edit = context.MyTable.Single(x => x.FormId == formid);
+
+            return View("Form", response_to_edit);
         }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
+        [HttpPost]
+        public IActionResult Edit(FormResponse edited_record)
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            context.Update(edited_record);
+            context.SaveChanges();
+
+            return RedirectToAction("DataTable");
+        }
+
+        [HttpGet]
+        public IActionResult Delete(int formid)
+        {
+            var response_to_delete = context.MyTable.Single(x => x.FormId == formid);
+
+            return View(response_to_delete);
+        }
+
+        [HttpPost]
+        public IActionResult Delete(FormResponse del)
+        {
+            context.MyTable.Remove(del);
+            context.SaveChanges();
+
+            return RedirectToAction("DataTable");
         }
     }
 }
